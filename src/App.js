@@ -4,26 +4,6 @@ import "./App.css";
 function App() {
   const [data, setData] = useState([]);
   const [zipCode, setZipCode] = useState('');
-  
-  let firstData = data[0];
-  let city = '';
-  let state = '';
-  let lat = '';
-  let long = '';
-  let estimatedPop = '';
-  let totalWages = '';
-
-  if(firstData !== undefined){
-    document.getElementById("the-info").className = "list-unstyled d-block"
-    city = firstData.City + ', ' + firstData.State;
-    state = 'State: ' + firstData.State;
-    lat = 'Location: (' + firstData.Lat + ', ';
-    long = firstData.Long + ')';
-    estimatedPop = 'Population (estimated): ' + firstData.EstimatedPopulation;
-    totalWages = 'Total Wages: ' + firstData.TotalWages;
-  } else{
-    city = <b>No results found</b>;
-  }
 
   const fetchData = () => {
     fetch('https://ctp-zip-api.herokuapp.com/zip/' + zipCode , {
@@ -35,9 +15,10 @@ function App() {
     .then((response) => response.json())
     .then((responseData) => setData(responseData))
     .catch((error) => (console.log("NO RESULTS FOUND FOR " + zipCode)) & (
-      document.getElementById("city-section").innerHTML = "<b>No results found</b>",
-      document.getElementById("the-info").className = "list-unstyled d-none"
-    ));
+        document.getElementById("the-result").innerHTML = `<b>No results found</b>`,
+        document.getElementById("everything").hidden = true
+      )
+    )
   }
   
   return (
@@ -60,24 +41,41 @@ function App() {
           <div className="Main-box d-flex justify-content-center mt-1">
             <button onClick={() => fetchData(zipCode)}>Search</button>
           </div>
-          <br></br>
 
-          <div>
-              <div className="row">
-                <div className="Main-box row bg-light border border-dark rounded-top w-100">
-                  <pre id="city-section">{city}</pre>
-                </div>
-                <div className="row bg-primary border border-dark rounded-bottom w-100 text-white">
-                  <ul className="list-unstyled d-none" id="the-info">
-                    <li className="justify-content-left" id="under-city"><pre>{state}</pre></li>
-                    <li className="justify-content-left"><pre id="under-city">{lat}{long}</pre></li>
-                    <li className="justify-content-left"><pre id="under-city">{estimatedPop}</pre></li>
-                    <li className="justify-content-left"><pre id="under-city">{totalWages}</pre></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <br></br>
+          <pre className="Main-box d-flex justify-content-center mt-5" id="the-result"><b>No results found</b></pre>
+
+          <br></br>
+          
+          <div id="everything">
+            {data.map((zip) => {
+                return(
+                  document.getElementById("the-result").innerHTML = `<b>${data[0].Zipcode}</b>`,
+                  document.getElementById("everything").hidden = false,
+                  <div>
+                    <div className="row">
+                      <div className="Main-box col-1 bg-light border border-dark rounded-top w-100">
+                        <pre id="city-section">{zip.City}</pre>
+                      </div>
+                      <div className="col-1 bg-primary border border-dark rounded-bottom w-100 text-white mb-3">
+                        <ul className="list-styled" id="the-info">
+                          <li className="justify-content-left" id="under-city"><pre>State: {zip.State}</pre></li>
+                          <li className="justify-content-left"><pre id="under-city">Location: ({zip.Lat}, {zip.Long})</pre></li>
+                          <li className="justify-content-left"><pre id="under-city">Population (estimated): {zip.EstimatedPopulation}</pre></li>
+                          <li className="justify-content-left"><pre id="under-city">Total Wages: {zip.TotalWages}</pre></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+            
+
+
+
+
+            
+            
         </div>
       </div>
     </div>
